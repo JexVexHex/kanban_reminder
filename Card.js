@@ -8,6 +8,7 @@ class Card {
         this.description = description;
         this.columnId = columnId;
         this.createdAt = new Date().toISOString();
+        this.reminderAt = null;
     }
 
     render() {
@@ -18,8 +19,22 @@ class Card {
 
         const titleEl = document.createElement('div');
         titleEl.className = 'card-title';
-        titleEl.textContent = this.title;
-
+        
+        const titleText = document.createTextNode(this.title);
+        titleEl.appendChild(titleText);
+        
+        // Add reminder indicator if card has a future reminder
+        if (this.reminderAt) {
+            const reminderDate = new Date(this.reminderAt);
+            if (reminderDate > new Date()) {
+                const reminderIcon = document.createElement('span');
+                reminderIcon.className = 'reminder-icon';
+                reminderIcon.textContent = '🔔';
+                reminderIcon.title = `Reminder set for ${reminderDate.toLocaleString()}`;
+                titleEl.appendChild(reminderIcon);
+            }
+        }
+        
         cardEl.appendChild(titleEl);
 
         if (this.description) {
@@ -52,7 +67,9 @@ class Card {
     }
 
     static fromJSON(json) {
-        return new Card(json.id, json.title, json.description, json.columnId);
+        const card = new Card(json.id, json.title, json.description, json.columnId);
+        card.reminderAt = json.reminderAt || null;
+        return card;
     }
 
     toJSON() {
@@ -61,7 +78,8 @@ class Card {
             title: this.title,
             description: this.description,
             columnId: this.columnId,
-            createdAt: this.createdAt
+            createdAt: this.createdAt,
+            reminderAt: this.reminderAt
         };
     }
 }

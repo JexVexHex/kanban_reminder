@@ -7,6 +7,8 @@ class ModalManager {
         this.cardForm = document.getElementById('cardForm');
         this.cardTitleInput = document.getElementById('cardTitle');
         this.cardDescInput = document.getElementById('cardDescription');
+        this.cardReminderInput = document.getElementById('cardReminder');
+        this.clearReminderBtn = document.getElementById('clearReminderBtn');
 
         this.columnModal = document.getElementById('columnModal');
         this.columnForm = document.getElementById('columnForm');
@@ -22,6 +24,9 @@ class ModalManager {
         this.onCardSubmit = null;
         this.onColumnSubmit = null;
         this.onConfirmDelete = null;
+        this.onReminderChange = null;
+        this.reminderViewModel = null;
+        this._pendingReminder = null;
     }
 
     attachEventListeners() {
@@ -43,21 +48,52 @@ class ModalManager {
         this.cardForm.addEventListener('submit', (e) => this.handleCardSubmit(e));
         this.columnForm.addEventListener('submit', (e) => this.handleColumnSubmit(e));
 
+        // Reminder input
+        if (this.cardReminderInput) {
+            this.cardReminderInput.addEventListener('change', () => {
+                if (this.reminderViewModel) {
+                    this.reminderViewModel.setFromInput(this.cardReminderInput.value);
+                } else {
+                    // For new cards, store the reminder value to apply after creation
+                    this._pendingReminder = this.cardReminderInput.value || null;
+                }
+            });
+        }
+        if (this.clearReminderBtn) {
+            this.clearReminderBtn.addEventListener('click', () => {
+                if (this.cardReminderInput) {
+                    this.cardReminderInput.value = '';
+                }
+                if (this.reminderViewModel) {
+                    this.reminderViewModel.setFromInput('');
+                } else {
+                    this._pendingReminder = null;
+                }
+            });
+        }
+
         // Confirm dialog
         document.querySelector('.confirm-delete').addEventListener('click', () => this.handleConfirm());
         document.querySelector('.confirm-cancel').addEventListener('click', () => this.close(this.confirmModal));
     }
 
-    openCardModal(cardId = null, columnId = null, mode = 'create') {
+    openCardModal(card = null, columnId = null, mode = 'create') {
+        const cardId = card ? card.id : null;
         this.cardBeingEdited = { cardId, columnId, mode };
 
-        if (mode === 'edit' && cardId) {
-            this.cardTitleInput.value = cardId.title || '';
-            this.cardDescInput.value = cardId.description || '';
+        if (mode === 'edit' && card) {
+            this.cardTitleInput.value = card.title || '';
+            this.cardDescInput.value = card.description || '';
+            if (this.cardReminderInput && this.reminderViewModel) {
+                this.cardReminderInput.value = this.reminderViewModel.inputValueFromCard(card);
+            }
             document.getElementById('cardModalTitle').textContent = 'Edit Card';
         } else {
             this.cardTitleInput.value = '';
             this.cardDescInput.value = '';
+            if (this.cardReminderInput) {
+                this.cardReminderInput.value = '';
+            }
             document.getElementById('cardModalTitle').textContent = 'Add Card';
         }
 

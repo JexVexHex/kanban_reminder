@@ -13,6 +13,9 @@ class KanbanBoard {
 
         this._listenersAttached = false;
 
+        // Initialize reminder system
+        this.initReminderSystem();
+
         this.init();
     }
 
@@ -20,6 +23,58 @@ class KanbanBoard {
         this.load();
         this.render();
         this.attachEventListeners();
+        // Start reminder coordinator after render
+        if (this.reminderCoordinator) {
+            this.reminderCoordinator.start();
+        }
+    }
+
+    initReminderSystem() {
+        // Initialize reminder services
+        const notifier = new NotificationService();
+        const toastService = new ToastService();
+        const cardStore = new CardStoreAdapter(this);
+        const repo = new ReminderRepository(cardStore);
+        const scheduler = new ReminderScheduler((cardId) => {
+            if (this.reminderCoordinator) {
+                this.reminderCoordinator.handleDue(cardId);
+            }
+        });
+        const manager = new ReminderManager(repo, scheduler, notifier, toastService);
+
+        // Card locator for scrolling/highlighting
+        const locator = {
+            getTitle: (id) => {
+                const card = cardStore.getCardById(id);
+                return card ? card.title : "";
+            },
+            scrollToCard: (id) => {
+                const el = document.querySelector(`[data-card-id="${id}"]`);
+                if (el) {
+                    el.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
+            },
+            highlight: (id) => {
+                const el = document.querySelector(`[data-card-id="${id}"]`);
+                if (!el) return;
+                el.classList.add("card-highlight");
+                setTimeout(() => {
+                    el.classList.remove("card-highlight");
+                }, 2000);
+            }
+        };
+
+        this.reminderCoordinator = new ReminderCoordinator(manager, notifier, locator);
+        this.reminderManager = manager;
+
+        // Clock resync for time drift
+        this.clockResync = new ClockResync(() => {
+            manager.init();
+        });
+        this.clockResync.start();
+
+        // PWA stub (disabled by default)
+        // registerReminderSW(false);
     }
 
     load() {
@@ -91,6 +146,10 @@ class KanbanBoard {
             if (action === 'edit') {
                 const column = this.columns.find(col => col.id === columnId);
                 const card = column.getCard(cardId);
+                // Setup reminder viewmodel for this card
+                if (this.reminderManager && card) {
+                    this.modalManager.reminderViewModel = new CardReminderViewModel(this.reminderManager, card.id);
+                }
                 this.modalManager.openCardModal(card, columnId, 'edit');
             } else if (action === 'delete') {
                 this.modalManager.openDeleteConfirmation('card', cardId, columnId);
@@ -100,6 +159,9 @@ class KanbanBoard {
         if (addCardBtn) {
             const columnEl = addCardBtn.closest('.column');
             const columnId = columnEl.dataset.columnId;
+            // Don't set up viewmodel for new cards - we'll handle reminder after card creation
+            this.modalManager.reminderViewModel = null;
+            this.modalManager._pendingReminder = null;
             this.modalManager.openCardModal(null, columnId, 'create');
         }
 
@@ -121,11 +183,28 @@ class KanbanBoard {
         if (mode === 'create') {
             const newCard = new Card(KanbanUtils.generateId(), title, description);
             column.addCard(newCard);
+            // Apply pending reminder if set
+            if (this.modalManager._pendingReminder) {
+                const iso = new Date(this.modalManager._pendingReminder).toISOString();
+                newCard.reminderAt = iso;
+                if (this.reminderManager) {
+                    this.reminderManager.setReminder(newCard.id, iso);
+                }
+                this.modalManager._pendingReminder = null;
+            }
         } else if (mode === 'edit' && cardId) {
             const card = column.getCard(cardId);
             if (card) {
                 card.title = title;
                 card.description = description;
+                // Reminder is already updated by viewmodel, but ensure scheduler sync
+                if (this.reminderManager) {
+                    if (card.reminderAt) {
+                        this.reminderManager.setReminder(card.id, card.reminderAt);
+                    } else {
+                        this.reminderManager.clearReminder(card.id);
+                    }
+                }
             }
         }
 
@@ -146,11 +225,22 @@ class KanbanBoard {
             const { cardId, columnId: colId } = cardData;
             const column = this.columns.find(col => col.id === colId);
             if (column) {
+                // Clear reminder if exists
+                if (this.reminderManager) {
+                    this.reminderManager.clearReminder(cardId);
+                }
                 column.removeCard(cardId);
                 this.save();
                 this.render();
             }
         } else if (columnId) {
+            // Clear reminders for all cards in the column
+            const column = this.columns.find(col => col.id === columnId);
+            if (column && this.reminderManager) {
+                column.cards.forEach(card => {
+                    this.reminderManager.clearReminder(card.id);
+                });
+            }
             this.columns = this.columns.filter(col => col.id !== columnId);
             this.save();
             this.render();
@@ -166,6 +256,7 @@ class KanbanBoard {
             if (card) {
                 fromColumn.removeCard(cardId);
                 toColumn.addCard(card);
+                // Reminder persists with card, no need to resync
                 this.save();
                 this.render();
             }

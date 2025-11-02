@@ -74,6 +74,25 @@
                         rows="4"
                     ></textarea>
                 </div>
+                <div class="form-group">
+                    <label for="cardReminder">Reminder</label>
+                    <div style="display: flex; gap: var(--spacing-sm); align-items: center;">
+                        <input 
+                            type="datetime-local" 
+                            id="cardReminder" 
+                            class="form-input"
+                            style="flex: 1;"
+                        >
+                        <button 
+                            type="button" 
+                            id="clearReminderBtn" 
+                            class="btn btn-secondary"
+                            style="white-space: nowrap;"
+                        >
+                            Clear
+                        </button>
+                    </div>
+                </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Card</button>
@@ -125,6 +144,18 @@
     </div>
 
     <!-- Scripts -->
+    <!-- Reminder System -->
+    <script src="src/services/NotificationService.js"></script>
+    <script src="src/services/ToastService.js"></script>
+    <script src="src/repositories/CardStoreAdapter.js"></script>
+    <script src="src/repositories/ReminderRepository.js"></script>
+    <script src="src/schedulers/ReminderScheduler.js"></script>
+    <script src="src/schedulers/ClockResync.js"></script>
+    <script src="src/managers/ReminderManager.js"></script>
+    <script src="src/coordinators/ReminderCoordinator.js"></script>
+    <script src="src/viewmodels/CardReminderViewModel.js"></script>
+    <script src="src/pwa/registerReminderSW.js"></script>
+    <!-- Core Kanban -->
     <script src="StorageManager.js"></script>
     <script src="Card.js"></script>
     <script src="Column.js"></script>

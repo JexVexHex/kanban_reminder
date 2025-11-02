@@ -55,6 +55,15 @@
     color: var(--color-text-primary);
     margin-bottom: var(--spacing-sm);
     word-wrap: break-word;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.reminder-icon {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    flex-shrink: 0;
 }
 
 .card-description {
@@ -260,4 +269,59 @@
     gap: var(--spacing-md);
     justify-content: flex-end;
     margin-top: var(--spacing-lg);
+}
+
+/* ========================================
+   Card Highlight (for reminders)
+   ======================================== */
+.card-highlight {
+    animation: highlightPulse 2s ease-in-out;
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.5) !important;
+}
+
+@keyframes highlightPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+    }
+    50% {
+        transform: scale(1.02);
+        box-shadow: 0 0 30px rgba(99, 102, 241, 0.7);
+    }
+}
+
+/* ========================================
+   Toast Notifications
+   ======================================== */
+.toast-container {
+    position: fixed;
+    top: var(--spacing-lg);
+    right: var(--spacing-lg);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    pointer-events: none;
+}
+
+.toast {
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--color-glass-bg);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-md);
+    color: var(--color-text-primary);
+    font-size: 0.9rem;
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+    pointer-events: auto;
+    max-width: 300px;
+}
+
+.toast.toast-show {
+    opacity: 1;
+    transform: translateX(0);
 }
