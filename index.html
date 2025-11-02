@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Kanban Board</title>
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="variables.css">
+    <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="components.css">
+    <link rel="stylesheet" href="modals-animations.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="header-brand">
+                <h1 class="app-title">Kanban Board</h1>
+                <p class="app-subtitle">Organize your workflow</p>
+            </div>
+            <div class="header-actions">
+                <button id="addColumnBtn" class="btn btn-primary" aria-label="Add new column">
+                    <span class="btn-icon">+</span>
+                    <span class="btn-text">Add Column</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="app-main">
+        <div class="kanban-container" id="kanbanContainer">
+            <!-- Columns will be dynamically inserted here -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState">
+            <div class="empty-state-content">
+                <p class="empty-state-icon">📋</p>
+                <h2>No columns yet</h2>
+                <p>Create a column to get started</p>
+                <button class="btn btn-secondary" id="addColumnBtnEmpty">
+                    Add Your First Column
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Card Modal -->
+    <div class="modal" id="cardModal" role="dialog" aria-labelledby="cardModalTitle" aria-hidden="true">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="cardModalTitle" class="modal-title">Add Card</h2>
+                <button class="modal-close" aria-label="Close dialog">&times;</button>
+            </div>
+            <form class="modal-form" id="cardForm">
+                <div class="form-group">
+                    <label for="cardTitle">Title</label>
+                    <input 
+                        type="text" 
+                        id="cardTitle" 
+                        class="form-input" 
+                        placeholder="Enter card title" 
+                        required
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="cardDescription">Description</label>
+                    <textarea 
+                        id="cardDescription" 
+                        class="form-input form-textarea" 
+                        placeholder="Enter card description (optional)"
+                        rows="4"
+                    ></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Card</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Column Modal -->
+    <div class="modal" id="columnModal" role="dialog" aria-labelledby="columnModalTitle" aria-hidden="true">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="columnModalTitle" class="modal-title">Add Column</h2>
+                <button class="modal-close" aria-label="Close dialog">&times;</button>
+            </div>
+            <form class="modal-form" id="columnForm">
+                <div class="form-group">
+                    <label for="columnTitle">Column Title</label>
+                    <input 
+                        type="text" 
+                        id="columnTitle" 
+                        class="form-input" 
+                        placeholder="e.g., To Do, In Progress, Done" 
+                        required
+                    >
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Column</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="confirmModal" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-content-small">
+            <div class="modal-header">
+                <h2 id="confirmTitle" class="modal-title">Confirm Action</h2>
+            </div>
+            <p id="confirmMessage" class="confirm-message"></p>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary confirm-cancel">Cancel</button>
+                <button type="button" class="btn btn-danger confirm-delete">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="StorageManager.js"></script>
+    <script src="Card.js"></script>
+    <script src="Column.js"></script>
+    <script src="ModalManager.js"></script>
+    <script src="DragDropManager.js"></script>
+    <script src="KanbanBoard.js"></script>
+    <script src="KanbanUtils.js"></script>
+</body>
+</html>
