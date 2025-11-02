@@ -19,6 +19,9 @@
                 <p class="app-subtitle">Organize your workflow</p>
             </div>
             <div class="header-actions">
+                <button id="themeToggle" class="btn btn-secondary" aria-label="Toggle theme">
+                    🌙
+                </button>
                 <button id="addColumnBtn" class="btn btn-primary" aria-label="Add new column">
                     <span class="btn-icon">+</span>
                     <span class="btn-text">Add Column</span>
@@ -144,6 +147,8 @@
     </div>
 
     <!-- Scripts -->
+    <!-- Theme Management (must be loaded first) -->
+    <script src="theme.js"></script>
     <!-- Reminder System -->
     <script src="src/services/NotificationService.js"></script>
     <script src="src/services/ToastService.js"></script>
