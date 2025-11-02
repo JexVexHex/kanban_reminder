@@ -14,6 +14,22 @@ class Column {
         this.cards.push(card);
     }
 
+    insertCardAt(card, index) {
+        card.columnId = this.id;
+        // Clamp index to valid range
+        const targetIndex = Math.max(0, Math.min(index, this.cards.length));
+        this.cards.splice(targetIndex, 0, card);
+    }
+
+    moveCard(cardId, newIndex) {
+        const currentIndex = this.cards.findIndex(card => card.id === cardId);
+        if (currentIndex === -1) return;
+
+        const [card] = this.cards.splice(currentIndex, 1);
+        const targetIndex = Math.max(0, Math.min(newIndex, this.cards.length));
+        this.cards.splice(targetIndex, 0, card);
+    }
+
     removeCard(cardId) {
         this.cards = this.cards.filter(card => card.id !== cardId);
     }

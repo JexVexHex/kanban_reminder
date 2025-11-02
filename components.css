@@ -292,6 +292,30 @@
 }
 
 /* ========================================
+   Drop Indicator (for drag-and-drop)
+   ======================================== */
+.drop-indicator {
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+    margin: var(--spacing-sm) 0;
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.6);
+    animation: dropIndicatorPulse 1s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes dropIndicatorPulse {
+    0%, 100% {
+        opacity: 0.6;
+        transform: scaleX(0.95);
+    }
+    50% {
+        opacity: 1;
+        transform: scaleX(1);
+    }
+}
+
+/* ========================================
    Toast Notifications
    ======================================== */
 .toast-container {

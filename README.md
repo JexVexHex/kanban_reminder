@@ -1,4 +1,4 @@
-# Modern Kanban Board
+<!-- # Modern Kanban Board -->
 
 A sleek, modern Kanban board built with vanilla HTML5, CSS3, and JavaScript (ES6+). Features drag-and-drop functionality, glassmorphism design, and full local storage persistence.
 

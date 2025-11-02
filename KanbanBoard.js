@@ -124,7 +124,7 @@ class KanbanBoard {
 
         // Drag and drop manager setup (attach only once on container)
         this.dragDropManager.attachEventListeners(this.containerEl);
-        this.dragDropManager.onCardMove = (cardId, fromId, toId) => this.moveCardToColumn(cardId, fromId, toId);
+        this.dragDropManager.onCardMove = (cardId, fromId, toId, targetIndex) => this.moveCardToColumn(cardId, fromId, toId, targetIndex);
         this.dragDropManager.onColumnSwap = (col1, col2) => this.swapColumns(col1, col2);
 
         // Container event delegation
@@ -247,15 +247,25 @@ class KanbanBoard {
         }
     }
 
-    moveCardToColumn(cardId, fromColumnId, toColumnId) {
+    moveCardToColumn(cardId, fromColumnId, toColumnId, targetIndex) {
         const fromColumn = this.columns.find(col => col.id === fromColumnId);
         const toColumn = this.columns.find(col => col.id === toColumnId);
 
         if (fromColumn && toColumn) {
             const card = fromColumn.getCard(cardId);
             if (card) {
-                fromColumn.removeCard(cardId);
-                toColumn.addCard(card);
+                if (fromColumnId === toColumnId) {
+                    // Same column - reorder within column
+                    toColumn.moveCard(cardId, targetIndex);
+                } else {
+                    // Different columns - move card
+                    fromColumn.removeCard(cardId);
+                    if (targetIndex !== undefined) {
+                        toColumn.insertCardAt(card, targetIndex);
+                    } else {
+                        toColumn.addCard(card);
+                    }
+                }
                 // Reminder persists with card, no need to resync
                 this.save();
                 this.render();
