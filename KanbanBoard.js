@@ -11,6 +11,8 @@ class KanbanBoard {
         this.containerEl = document.getElementById('kanbanContainer');
         this.emptyStateEl = document.getElementById('emptyState');
 
+        this._listenersAttached = false;
+
         this.init();
     }
 
@@ -48,6 +50,9 @@ class KanbanBoard {
     }
 
     attachEventListeners() {
+        if (this._listenersAttached) return;
+        this._listenersAttached = true;
+
         // Header buttons
         document.getElementById('addColumnBtn').addEventListener('click', () => {
             this.modalManager.openColumnModal();
@@ -56,16 +61,16 @@ class KanbanBoard {
             this.modalManager.openColumnModal();
         });
 
-        // Modal manager setup
+        // Modal manager setup (attach only once)
         this.modalManager.attachEventListeners();
         this.modalManager.onCardSubmit = (title, desc, data) => this.handleCardSubmit(title, desc, data);
         this.modalManager.onColumnSubmit = (title) => this.handleColumnSubmit(title);
         this.modalManager.onConfirmDelete = (card, column) => this.handleConfirmDelete(card, column);
 
-        // Drag and drop manager setup
+        // Drag and drop manager setup (attach only once on container)
         this.dragDropManager.attachEventListeners(this.containerEl);
-        this.dragDropManager.onCardMoveCallback = (cardId, fromId, toId) => this.moveCardToColumn(cardId, fromId, toId);
-        this.dragDropManager.onColumnSwapCallback = (col1, col2) => this.swapColumns(col1, col2);
+        this.dragDropManager.onCardMove = (cardId, fromId, toId) => this.moveCardToColumn(cardId, fromId, toId);
+        this.dragDropManager.onColumnSwap = (col1, col2) => this.swapColumns(col1, col2);
 
         // Container event delegation
         this.containerEl.addEventListener('click', (e) => this.handleContainerClick(e));
@@ -126,7 +131,6 @@ class KanbanBoard {
 
         this.save();
         this.render();
-        this.attachEventListeners();
     }
 
     handleColumnSubmit(title) {
@@ -135,7 +139,6 @@ class KanbanBoard {
 
         this.save();
         this.render();
-        this.attachEventListeners();
     }
 
     handleConfirmDelete(cardData, columnId) {
@@ -146,13 +149,11 @@ class KanbanBoard {
                 column.removeCard(cardId);
                 this.save();
                 this.render();
-                this.attachEventListeners();
             }
         } else if (columnId) {
             this.columns = this.columns.filter(col => col.id !== columnId);
             this.save();
             this.render();
-            this.attachEventListeners();
         }
     }
 

@@ -20,14 +20,14 @@ class Card {
         titleEl.className = 'card-title';
         titleEl.textContent = this.title;
 
+        cardEl.appendChild(titleEl);
+
         if (this.description) {
             const descEl = document.createElement('div');
             descEl.className = 'card-description';
             descEl.textContent = this.description;
             cardEl.appendChild(descEl);
         }
-
-        cardEl.appendChild(titleEl);
 
         const actionsEl = document.createElement('div');
         actionsEl.className = 'card-actions';

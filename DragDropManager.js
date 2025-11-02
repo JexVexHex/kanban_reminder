@@ -60,8 +60,11 @@ class DragDropManager {
     }
 
     handleDragLeave(e) {
-        if (!e.target.closest('.column').contains(e.relatedTarget)) {
-            e.target.closest('.column')?.classList.remove('drag-over');
+        const columnEl = e.target.closest('.column');
+        if (!columnEl) return;
+        const related = e.relatedTarget;
+        if (!related || !columnEl.contains(related)) {
+            columnEl.classList.remove('drag-over');
         }
     }
 
